@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Про нас — {{ SHOP.name }}{% endblock %}
+{% block content %}
+<nav class="crumbs"><a href="{% url 'index' %}">Головна</a> › Про нас</nav>
+<h1 class="ptitle">Про нас</h1>
+<div class="about">
+<p>Тут розмістіть опис вашого магазину: хто ви, що виробляєте або продаєте, чому варто обрати саме вас.</p>
+</div>
+{% endblock %}

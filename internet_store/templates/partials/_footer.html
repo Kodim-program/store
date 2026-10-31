@@ -1,0 +1,9 @@
+<footer><div class="wrap">
+  <div class="fcols">
+    <div><h4>Інформація</h4><a href="{% url 'about' %}">Про нас</a><a href="{% url 'catalog' %}?sale=1">Акції та знижки</a></div>
+    <div><h4>Покупцям</h4><a href="{% url 'delivery' %}">Доставка та оплата</a><a href="{% url 'returns' %}">Повернення та обмін</a><a href="{% url 'contacts' %}">Контакти</a></div>
+    <div><h4>Контакти</h4><a href="tel:{{ SHOP.phone|cut:' ' }}">{{ SHOP.phone }}</a><a href="mailto:{{ SHOP.email }}">{{ SHOP.email }}</a><a href="{% url 'contacts' %}">{{ SHOP.address }}</a></div>
+    <div><h4>Соцмережі</h4><a href="#">Instagram</a><a href="#">Facebook</a><a href="#">Telegram</a></div>
+  </div>
+  <div class="copy">© {% now "Y" %} {{ SHOP.name }}. Усі права захищені.</div>
+</div></footer>

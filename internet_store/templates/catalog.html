@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — {{ SHOP.name }}{% endblock %}
+{% block content %}
+<nav class="crumbs"><a href="{% url 'index' %}">Головна</a> › {% if category %}<a href="{% url 'catalog' %}">Каталог</a> › {{ category.name }}{% else %}Каталог{% endif %}</nav>
+<h1 class="ptitle">{{ title }}</h1>
+
+{% if subcategories and not q %}
+<div class="tabs">
+  {% for c in subcategories %}<a class="tabbtn" href="{{ c.get_absolute_url }}">{{ c.emoji }} {{ c.name }}</a>{% endfor %}
+</div>
+{% endif %}
+
+<form class="toolbar" method="get">
+  {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+  <span class="muted">Знайдено: {{ page.paginator.count }}</span>
+  <label>Сортування
+    <select name="sort" onchange="this.form.submit()">
+      <option value="">За новизною</option>
+      <option value="price"{% if sort == "price" %} selected{% endif %}>Спочатку дешевші</option>
+      <option value="-price"{% if sort == "-price" %} selected{% endif %}>Спочатку дорожчі</option>
+    </select>
+  </label>
+</form>
+
+<div class="grid">
+  {% for p in page %}{% include "partials/_product_card.html" %}
+  {% empty %}<p class="empty">Нічого не знайдено</p>{% endfor %}
+</div>
+
+{% if page.has_other_pages %}
+<div class="pager">
+  {% if page.has_previous %}<a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page.previous_page_number }}">←</a>{% endif %}
+  <span>{{ page.number }} / {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}<a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page.next_page_number }}">→</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Дякуємо за замовлення — {{ SHOP.name }}{% endblock %}
+{% block content %}
+<div class="done">
+  <div class="big-emoji">✅</div>
+  <h1>Дякуємо! Замовлення №{{ order.pk }} прийнято</h1>
+  <p class="muted">Ми зв'яжемось з вами за номером {{ order.phone }} для підтвердження.</p>
+  <div class="summary" style="max-width:420px;margin:20px auto">
+    {% for i in order.items.all %}<div class="srow"><span>{{ i.product_name }} × {{ i.quantity }}</span><span>{{ i.subtotal|floatformat:"0g" }} ₴</span></div>{% endfor %}
+    <div class="total"><span>Разом</span><span>{{ order.total|floatformat:"0g" }} ₴</span></div>
+  </div>
+  <a class="cta-outline" href="{% url 'index' %}">На головну</a>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Контакти — {{ SHOP.name }}{% endblock %}
+{% block content %}
+<nav class="crumbs"><a href="{% url 'index' %}">Головна</a> › Контакти</nav>
+<h1 class="ptitle">Контакти</h1>
+<div class="about">
+<p>☎ {{ SHOP.phone }}<br>✉ {{ SHOP.email }}<br>📍 {{ SHOP.address }}</p><p>Пн–Нд 9:00–18:00</p>
+</div>
+{% endblock %}

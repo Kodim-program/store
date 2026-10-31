@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Кошик — {{ SHOP.name }}{% endblock %}
+{% block content %}
+<h1 class="ptitle">Кошик</h1>
+{% if items %}
+<div class="cart-layout">
+  <div class="cart-list">
+    {% for i in items %}
+    <div class="crow">
+      <a class="cimg" href="{{ i.product.get_absolute_url }}" style="background:{{ i.product.color }}">{{ i.product.emoji }}</a>
+      <div class="cname"><a href="{{ i.product.get_absolute_url }}">{{ i.product.name }}</a><br><b>{{ i.product.price|floatformat:"0g" }} ₴</b></div>
+      <form method="post" action="{% url 'cart_update' i.product.pk %}" class="qty">{% csrf_token %}
+        <input type="number" name="quantity" value="{{ i.quantity }}" min="0" max="99" aria-label="Кількість">
+        <button type="submit" class="ibtn">Оновити</button>
+      </form>
+      <div class="csum">{{ i.subtotal|floatformat:"0g" }} ₴</div>
+      <form method="post" action="{% url 'cart_remove' i.product.pk %}">{% csrf_token %}<button class="ibtn" aria-label="Видалити">✕</button></form>
+    </div>
+    {% endfor %}
+  </div>
+  <aside class="summary">
+    <div class="total"><span>Разом</span><span>{{ total|floatformat:"0g" }} ₴</span></div>
+    <a class="add" href="{% url 'checkout' %}">Оформити замовлення</a>
+    <a class="back" href="{% url 'catalog' %}">← Продовжити покупки</a>
+  </aside>
+</div>
+{% else %}
+<p class="empty">Кошик порожній</p>
+<p class="more"><a class="cta-outline" href="{% url 'catalog' %}">Перейти до каталогу</a></p>
+{% endif %}
+{% endblock %}

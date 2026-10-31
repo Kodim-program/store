@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Доставка та оплата — {{ SHOP.name }}{% endblock %}
+{% block content %}
+<nav class="crumbs"><a href="{% url 'index' %}">Головна</a> › Доставка та оплата</nav>
+<h1 class="ptitle">Доставка та оплата</h1>
+<div class="about">
+<h3>Доставка</h3><p>Відправляємо Новою поштою по всій Україні в день замовлення. Безкоштовна доставка від {{ SHOP.free_delivery_from }} ₴.</p><h3>Оплата</h3><p>Накладений платіж або оплата карткою онлайн.</p>
+</div>
+{% endblock %}
