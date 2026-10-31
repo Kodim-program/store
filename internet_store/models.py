@@ -39,6 +39,7 @@ class Product(models.Model):
     )
     name = models.CharField("Назва", max_length=200)
     slug = models.SlugField("Slug", unique=True)
+    image = models.ImageField("Фото", upload_to="products/", blank=True, null=True)
     emoji = models.CharField("Емодзі", max_length=8, blank=True, default="🛍️")
     color = models.CharField("Колір фону картки", max_length=7, default="#e4e6ee")
     description = models.TextField("Опис", blank=True)
