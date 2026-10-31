@@ -137,10 +137,13 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# Фото товарів завантажуються в static/images/ (див. Product.image).
+PRODUCT_IMAGES_DIR = BASE_DIR / "static" / "images"
+# Нові фото з'являються під час роботи сайту, тому WhiteNoise має бачити їх без перезапуску.
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'

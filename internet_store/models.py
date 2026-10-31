@@ -1,10 +1,43 @@
-from django.db import models
-
-# Create your models here.
+import uuid
 from decimal import Decimal
+from io import BytesIO
 
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.urls import reverse
+from PIL import Image, ImageOps
+
+MAX_UPLOAD_MB = 10
+MAX_SIDE_PX = 1200
+WEBP_QUALITY = 82
+
+
+def product_image_storage():
+    """Фото товарів лежать у static/images/ і віддаються за адресою /static/images/..."""
+    return FileSystemStorage(
+        location=settings.PRODUCT_IMAGES_DIR,
+        base_url=settings.STATIC_URL + "images/",
+    )
+
+
+def validate_image_size(f):
+    if f.size > MAX_UPLOAD_MB * 1024 * 1024:
+        raise ValidationError(f"Файл завеликий (максимум {MAX_UPLOAD_MB} МБ).")
+
+
+def to_webp(uploaded, base_name):
+    """Конвертує завантажене зображення у WebP, зменшуючи до MAX_SIDE_PX."""
+    uploaded.seek(0)
+    img = ImageOps.exif_transpose(Image.open(uploaded))
+    img.thumbnail((MAX_SIDE_PX, MAX_SIDE_PX))
+    has_alpha = img.mode in ("RGBA", "LA") or (img.mode == "P" and "transparency" in img.info)
+    img = img.convert("RGBA" if has_alpha else "RGB")
+    buf = BytesIO()
+    img.save(buf, format="WEBP", quality=WEBP_QUALITY, method=6)
+    return ContentFile(buf.getvalue(), name=f"{base_name}-{uuid.uuid4().hex[:8]}.webp")
 
 
 class Category(models.Model):
@@ -39,9 +72,12 @@ class Product(models.Model):
     )
     name = models.CharField("Назва", max_length=200)
     slug = models.SlugField("Slug", unique=True)
-    image = models.ImageField("Фото", upload_to="products/", blank=True, null=True)
     emoji = models.CharField("Емодзі", max_length=8, blank=True, default="🛍️")
     color = models.CharField("Колір фону картки", max_length=7, default="#e4e6ee")
+    image = models.ImageField(
+        "Фото", storage=product_image_storage, blank=True, validators=[validate_image_size],
+        help_text="JPG, PNG, GIF або WebP до 10 МБ. Автоматично зберігається як WebP у static/images/.",
+    )
     description = models.TextField("Опис", blank=True)
     price = models.DecimalField("Ціна", max_digits=10, decimal_places=2)
     old_price = models.DecimalField("Стара ціна", max_digits=10, decimal_places=2, null=True, blank=True)
@@ -60,6 +96,23 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         return reverse("product_detail", args=[self.slug])
+
+    def save(self, *args, **kwargs):
+        old_name = None
+        if self.pk:
+            old_name = Product.objects.filter(pk=self.pk).values_list("image", flat=True).first()
+        if self.image and not self.image._committed:  # завантажено новий файл
+            webp = to_webp(self.image.file, self.slug)
+            self.image.save(webp.name, webp, save=False)
+        super().save(*args, **kwargs)
+        if old_name and old_name != (self.image.name or ""):
+            self.image.storage.delete(old_name)  # прибираємо старе фото
+
+    def delete(self, *args, **kwargs):
+        image = self.image
+        super().delete(*args, **kwargs)
+        if image:
+            image.storage.delete(image.name)
 
     @property
     def discount_percent(self):

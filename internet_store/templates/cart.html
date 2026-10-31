@@ -7,7 +7,7 @@
   <div class="cart-list">
     {% for i in items %}
     <div class="crow">
-      <a class="cimg" href="{{ i.product.get_absolute_url }}" style="background:{{ i.product.color }}">{{ i.product.emoji }}</a>
+      <a class="cimg" href="{{ i.product.get_absolute_url }}" style="background:{{ i.product.color }}">{% if i.product.image %}<img src="{{ i.product.image.url }}" alt="">{% else %}{{ i.product.emoji }}{% endif %}</a>
       <div class="cname"><a href="{{ i.product.get_absolute_url }}">{{ i.product.name }}</a><br><b>{{ i.product.price|floatformat:"0g" }} ₴</b></div>
       <form method="post" action="{% url 'cart_update' i.product.pk %}" class="qty">{% csrf_token %}
         <input type="number" name="quantity" value="{{ i.quantity }}" min="0" max="99" aria-label="Кількість">
