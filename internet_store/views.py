@@ -76,8 +76,8 @@ def _back(request, fallback="cart"):
 
 
 def cart_detail(request):
-    cart = Cart(request)
-    return render(request, "cart.html", {"items": list(cart.items()), "total": cart.total})
+    items = list(Cart(request).items())
+    return render(request, "cart.html", {"items": items, "total": sum(i["subtotal"] for i in items)})
 
 
 @require_POST
@@ -128,7 +128,7 @@ def checkout(request):
         cart.clear()
         request.session["last_order"] = order.pk
         return redirect("order_success", pk=order.pk)
-    return render(request, "checkout.html", {"form": form, "items": items, "total": cart.total})
+    return render(request, "checkout.html", {"form": form, "items": items, "total": sum(i["subtotal"] for i in items)})
 
 
 def order_success(request, pk):

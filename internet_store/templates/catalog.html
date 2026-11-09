@@ -12,6 +12,7 @@
 
 <form class="toolbar" method="get">
   {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+  {% if request.GET.sale %}<input type="hidden" name="sale" value="1">{% endif %}
   <span class="muted">Знайдено: {{ page.paginator.count }}</span>
   <label>Сортування
     <select name="sort" onchange="this.form.submit()">

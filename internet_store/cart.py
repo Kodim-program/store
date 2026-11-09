@@ -41,7 +41,13 @@ class Cart:
         return sum(self.data.values())
 
     def items(self):
-        products = Product.objects.filter(pk__in=self.data.keys(), is_active=True)
+        products = list(Product.objects.filter(pk__in=self.data.keys(), is_active=True))
+        found = {str(p.pk) for p in products}
+        stale = [k for k in self.data if k not in found]
+        if stale:  # товар вимкнули/видалили — прибираємо з кошика
+            for k in stale:
+                del self.data[k]
+            self._save()
         for p in products:
             qty = self.data[str(p.pk)]
             yield {"product": p, "quantity": qty, "subtotal": p.price * qty}
