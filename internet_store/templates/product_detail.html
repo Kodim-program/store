@@ -1,31 +1,25 @@
 {% extends "base.html" %}
-{% block title %}Кошик — {{ SHOP.name }}{% endblock %}
+{% block title %}{{ product.name }} — {{ SHOP.name }}{% endblock %}
 {% block content %}
-<h1 class="ptitle">Кошик</h1>
-{% if items %}
+<nav class="crumbs"><a href="{% url 'index' %}">Головна</a> › <a href="{% url 'catalog' %}">Каталог</a> › <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a> › {{ product.name }}</nav>
 <div class="cart-layout">
-  <div class="cart-list">
-    {% for i in items %}
-    <div class="crow">
-      <a class="cimg" href="{{ i.product.get_absolute_url }}" style="background:{{ i.product.color }}">{% if i.product.image %}<img src="{{ i.product.image.url }}" alt="">{% else %}{{ i.product.emoji }}{% endif %}</a>
-      <div class="cname"><a href="{{ i.product.get_absolute_url }}">{{ i.product.name }}</a><br><b>{{ i.product.price|floatformat:"0g" }} ₴</b></div>
-      <form method="post" action="{% url 'cart_update' i.product.pk %}" class="qty">{% csrf_token %}
-        <input type="number" name="quantity" value="{{ i.quantity }}" min="0" max="99" aria-label="Кількість">
-        <button type="submit" class="ibtn">Оновити</button>
-      </form>
-      <div class="csum">{{ i.subtotal|floatformat:"0g" }} ₴</div>
-      <form method="post" action="{% url 'cart_remove' i.product.pk %}">{% csrf_token %}<button class="ibtn" aria-label="Видалити">✕</button></form>
-    </div>
-    {% endfor %}
+  <div class="cimg" style="background:{{ product.color }};min-height:280px;display:flex;align-items:center;justify-content:center;font-size:96px">
+    {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width:100%">{% else %}{{ product.emoji }}{% endif %}
   </div>
   <aside class="summary">
-    <div class="total"><span>Разом</span><span>{{ total|floatformat:"0g" }} ₴</span></div>
-    <a class="add" href="{% url 'checkout' %}">Оформити замовлення</a>
-    <a class="back" href="{% url 'catalog' %}">← Продовжити покупки</a>
+    <h1 class="ptitle">{{ product.name }}</h1>
+    {% if product.reviews_count %}<div class="rate">★★★★★ · {{ product.reviews_count }} відгуків</div>{% endif %}
+    <div class="price"><b>{{ product.price|floatformat:"0g" }} ₴</b>{% if product.old_price %} <s>{{ product.old_price|floatformat:"0g" }} ₴</s>{% endif %}{% if product.discount_percent %} <span class="disc">−{{ product.discount_percent }}%</span>{% endif %}</div>
+    <p>{{ product.description|linebreaksbr }}</p>
+    <form method="post" action="{% url 'cart_add' product.pk %}">{% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <input type="number" name="quantity" value="1" min="1" max="99" aria-label="Кількість">
+      <button class="add" type="submit">До кошика</button>
+    </form>
   </aside>
 </div>
-{% else %}
-<p class="empty">Кошик порожній</p>
-<p class="more"><a class="cta-outline" href="{% url 'catalog' %}">Перейти до каталогу</a></p>
+{% if related %}
+<h2>Схожі товари</h2>
+<div class="grid">{% for p in related %}{% include "partials/_product_card.html" %}{% endfor %}</div>
 {% endif %}
 {% endblock %}
