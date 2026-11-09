@@ -2,22 +2,45 @@
 {% block title %}{{ product.name }} — {{ SHOP.name }}{% endblock %}
 {% block content %}
 <nav class="crumbs"><a href="{% url 'index' %}">Головна</a> › <a href="{% url 'catalog' %}">Каталог</a> › <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a> › {{ product.name }}</nav>
-<div class="cart-layout">
-  <div class="cimg" style="background:{{ product.color }};min-height:280px;display:flex;align-items:center;justify-content:center;font-size:96px">
-    {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width:100%">{% else %}{{ product.emoji }}{% endif %}
+
+<div class="pdp">
+  <div class="pgallery">
+    <div class="pimg{% if product.image %} has-img{% endif %}"{% if not product.image %} style="background:{{ product.color }}"{% endif %}>
+      {% if product.discount_percent %}<span class="pdisc">−{{ product.discount_percent }}%</span>{% endif %}
+      {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}{{ product.emoji }}{% endif %}
+    </div>
   </div>
-  <aside class="summary">
-    <h1 class="ptitle">{{ product.name }}</h1>
+
+  <div class="pinfo">
+    <a class="pcat" href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a>
+    <h1>{{ product.name }}</h1>
     {% if product.reviews_count %}<div class="rate">★★★★★ · {{ product.reviews_count }} відгуків</div>{% endif %}
-    <div class="price"><b>{{ product.price|floatformat:"0g" }} ₴</b>{% if product.old_price %} <s>{{ product.old_price|floatformat:"0g" }} ₴</s>{% endif %}{% if product.discount_percent %} <span class="disc">−{{ product.discount_percent }}%</span>{% endif %}</div>
-    <p>{{ product.description|linebreaksbr }}</p>
-    <form method="post" action="{% url 'cart_add' product.pk %}">{% csrf_token %}
+
+    <div class="pprice">
+      <b>{{ product.price|floatformat:"0g" }} ₴</b>
+      {% if product.old_price %}<s>{{ product.old_price|floatformat:"0g" }} ₴</s>{% endif %}
+      {% if product.discount_percent %}<span class="save">Знижка {{ product.discount_percent }}%</span>{% endif %}
+    </div>
+
+    {% if product.description %}<p class="pdesc">{{ product.description|linebreaksbr }}</p>{% endif %}
+
+    <form class="buy" method="post" action="{% url 'cart_add' product.pk %}">{% csrf_token %}
       <input type="hidden" name="next" value="{{ request.get_full_path }}">
-      <input type="number" name="quantity" value="1" min="1" max="99" aria-label="Кількість">
-      <button class="add" type="submit">До кошика</button>
+      <div class="stepper">
+        <button type="button" data-step="-1" aria-label="Менше">−</button>
+        <input type="number" name="quantity" value="1" min="1" max="99" aria-label="Кількість">
+        <button type="button" data-step="1" aria-label="Більше">+</button>
+      </div>
+      <button class="add" type="submit">Додати до кошика</button>
     </form>
-  </aside>
+
+    <ul class="guarantees">
+      <li>🚚 <span>Нова пошта по всій Україні, безкоштовно від {{ SHOP.free_delivery_from }} ₴. <a href="{% url 'delivery' %}">Доставка та оплата</a></span></li>
+      <li>↩️ <span>Повернення протягом 14 днів. <a href="{% url 'returns' %}">Умови повернення</a></span></li>
+    </ul>
+  </div>
 </div>
+
 {% if related %}
 <h2>Схожі товари</h2>
 <div class="grid">{% for p in related %}{% include "partials/_product_card.html" %}{% endfor %}</div>

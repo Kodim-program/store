@@ -19,3 +19,14 @@
   go(0);
   setInterval(function () { go((cur + 1) % slides.length); }, 5000);
 })();
+
+/* Лічильник кількості на сторінці товару */
+document.querySelectorAll(".stepper").forEach(function (box) {
+  var input = box.querySelector("input");
+  box.querySelectorAll("button[data-step]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var v = (parseInt(input.value, 10) || 1) + parseInt(b.dataset.step, 10);
+      input.value = Math.min(parseInt(input.max, 10) || 99, Math.max(parseInt(input.min, 10) || 1, v));
+    });
+  });
+});
